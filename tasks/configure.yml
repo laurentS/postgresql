@@ -9,6 +9,15 @@
     mode: 0700
   register: pgdata_dir_exist
 
+- name: PostgreSQL | Make sure the config directory exists
+  file:
+    path: "{{postgresql_conf_directory}}"
+    owner: "{{ postgresql_service_user }}"
+    group: "{{ postgresql_service_group }}"
+    state: directory
+    mode: 0755
+  register: pgconf_dir_exist
+
 - name: PostgreSQL | Ensure the locale is generated
   sudo: yes
   locale_gen: name={{postgresql_locale}} state=present
@@ -33,6 +42,7 @@
     group: "{{ postgresql_service_group }}"
     mode: 0640
   register: postgresql_configuration_pt1
+  when: pgconf_dir_exist.changed
 
 - name: PostgreSQL | Update configuration - pt. 2 (postgresql.conf)
   template:
